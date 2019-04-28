@@ -23,7 +23,7 @@ impl Net {
     pub fn new(sizes: &[usize]) -> Net {
         let mut layers = vec![];
         for i in 0..sizes.len()-1 {
-            layers.push(DMatrix::new_random(sizes[i], sizes[i + 1]));
+            layers.push(DMatrix::new_random(sizes[i + 1], sizes[i]));
         }
         Net {layers}
     }
@@ -33,6 +33,10 @@ impl Net {
     }
 
     pub fn predict(&self, input: Vec<f32>) -> Vec<f32> {
-        unimplemented!()
+        let mut activations = DVector::from_vec(input);
+        for x in &self.layers {
+            activations = x * activations;
+        }
+        activations.iter().map(|&x|x).collect()
     }
 }
