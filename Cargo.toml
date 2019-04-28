@@ -1,0 +1,9 @@
+[package]
+name = "neuron"
+version = "0.1.0"
+authors = ["Jouni Sunnari <Jouny@tuta.io>"]
+edition = "2018"
+
+[dependencies]
+nalgebra = "*"
+rand     = "*"
