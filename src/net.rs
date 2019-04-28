@@ -16,21 +16,16 @@ impl DataPoint {
 }
 
 pub struct Net {
-    layers: Vec<DVector<f32>>
+    layers: Vec<DMatrix<f32>>
 }
 
 impl Net {
     pub fn new(sizes: &[usize]) -> Net {
-        Net {
-            layers: sizes
-                .iter()
-                .map(|&l|
-                    DVector::from_fn(l, |w, h|
-                        thread_rng().gen_range(0.0, 1.0)
-                    )
-                )
-                .collect()
+        let mut layers = vec![];
+        for i in 0..sizes.len()-1 {
+            layers.push(DMatrix::new_random(sizes[i], sizes[i + 1]));
         }
+        Net {layers}
     }
 
     pub fn train<T: IntoIterator<Item=DataPoint>>(&mut self, data: T) {
