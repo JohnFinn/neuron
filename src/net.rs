@@ -33,10 +33,16 @@ impl Net {
     }
 
     pub fn predict(&self, input: Vec<f32>) -> Vec<f32> {
-        let mut activations = DVector::from_vec(input);
+        self._predict(DVector::from_vec(input))
+            .iter()
+            .map(|&x|x)
+            .collect()
+    }
+
+    fn _predict(&self, mut input: DVector<f32>) -> DVector<f32> {
         for x in &self.layers {
-            activations = x * activations;
+            input = x * input;
         }
-        activations.iter().map(|&x|x).collect()
+        input
     }
 }
