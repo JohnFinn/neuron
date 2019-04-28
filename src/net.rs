@@ -5,8 +5,14 @@ use nalgebra::*;
 use rand::*;
 
 pub struct DataPoint {
-    pub input:  f32,
-    pub output: f32,
+    pub input:  Vec<f32>,
+    pub output: Vec<f32>,
+}
+
+impl DataPoint {
+    pub fn new(input: Vec<f32>, output: Vec<f32>) -> DataPoint {
+        DataPoint{input, output}
+    }
 }
 
 pub struct Net {
@@ -31,7 +37,7 @@ impl Net {
         unimplemented!()
     }
 
-    pub fn predict(&self, input: f32) -> f32 {
+    pub fn predict(&self, input: Vec<f32>) -> Vec<f32> {
         unimplemented!()
     }
 }
