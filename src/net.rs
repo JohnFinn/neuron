@@ -88,6 +88,15 @@ macro_rules! net {
     };
 }
 
+#[macro_export]
+macro_rules! dvec {
+    ( $( $x:expr ),* ) => {
+        {
+            nalgebra::DVector::from_vec(vec!($($x),*))
+        }
+    };
+}
+
 fn cost(x: f32, y: f32) -> f32 {
     (x-y)*(x-y)
 }
