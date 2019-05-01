@@ -79,11 +79,7 @@ impl Net {
 macro_rules! net {
     ( $( $x:expr ),* ) => {
         {
-            let mut temp_vec = Vec::new();
-            $(
-                temp_vec.push($x);
-            )*
-            Net::new(&temp_vec[..])
+            Net::new(&[$($x),*])
         }
     };
 }
