@@ -1,5 +1,7 @@
 extern crate nalgebra;
+extern crate rand;
 use nalgebra::*;
+use rand::*;
 
 mod net;
 use net::*;
@@ -9,18 +11,15 @@ fn target(x: f32) -> f32 {
 }
 
 fn main() {
-    let dm = DMatrix::from_row_slice(4, 3, &[
-        1.0, 0.0, 0.0,
-        0.0, 1.0, 0.0,
-        0.0, 0.0, 1.0,
-        0.0, 0.0, 0.0
-    ]);
-//    let mut a = Net::new(&[2, 3]);
-//    let tdada = vec![
-//        DataPoint{input: 0.0, output: 0.0},
-//        DataPoint{input: 0.0, output: 0.0},
-//    ];
-//    a.train((0..100).map(|a| DataPoint{input: 0.0, output: 0.0}));
-//    a.predict(2.0);
-//    println!("{0}", a.layer1);
+    let mut a = net![2, 3, 1];
+    let train_data = vec![
+        DataPoint::new(vec![0.0, 0.0], vec![0.0]),
+        DataPoint::new(vec![0.0, 1.0], vec![1.0]),
+        DataPoint::new(vec![1.0, 0.0], vec![1.0]),
+        DataPoint::new(vec![1.0, 1.0], vec![0.0]),
+    ];
+
+    a.train(train_data);
+    let res = a.predict(vec![1.0, 0.0]);
+    println!("{0:?}", res);
 }

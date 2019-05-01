@@ -75,6 +75,19 @@ impl Net {
     }
 }
 
+#[macro_export]
+macro_rules! net {
+    ( $( $x:expr ),* ) => {
+        {
+            let mut temp_vec = Vec::new();
+            $(
+                temp_vec.push($x);
+            )*
+            Net::new(&temp_vec[..])
+        }
+    };
+}
+
 fn cost(x: f32, y: f32) -> f32 {
     (x-y)*(x-y)
 }
