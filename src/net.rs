@@ -9,6 +9,20 @@ pub struct DataPoint {
     pub output: Vec<f32>,
 }
 
+struct _DataPoint {
+    input:  DVector<f32>,
+    output: DVector<f32>,
+}
+
+impl From<DataPoint> for _DataPoint {
+    fn from(dp: DataPoint) -> Self {
+        _DataPoint {
+            input: DVector::from_vec(dp.input),
+            output: DVector::from_vec(dp.output)
+        }
+    }
+}
+
 impl DataPoint {
     pub fn new(input: Vec<f32>, output: Vec<f32>) -> DataPoint {
         DataPoint{input, output}
@@ -29,7 +43,12 @@ impl Net {
     }
 
     pub fn train<T: IntoIterator<Item=DataPoint>>(&mut self, data: T) {
-        unimplemented!()
+        self._train(data.into_iter().map(|x|x.into()).collect());
+    }
+
+    fn _train(&mut self, data: Vec<_DataPoint>) {
+        let cost = self.all_cost(data);
+        println!("cost: {0}", cost);
     }
 
     pub fn predict(&self, input: Vec<f32>) -> Vec<f32> {
@@ -45,4 +64,17 @@ impl Net {
         }
         input
     }
+
+    fn all_cost(&self, data: Vec<_DataPoint>) -> f32 {
+        data.into_iter().map(|dp| self.cost(&dp)).sum()
+    }
+
+    fn cost(&self, dp: &_DataPoint) -> f32 {
+        let mut a = self._predict(dp.input.clone()) - &dp.output;
+        a.iter().map(|x|x*x).sum()
+    }
+}
+
+fn cost(x: f32, y: f32) -> f32 {
+    (x-y)*(x-y)
 }
