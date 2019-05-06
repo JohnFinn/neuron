@@ -26,6 +26,13 @@ struct Layer {
     biases:  DVector<f32>
 }
 
+impl std::ops::AddAssign<Layer> for Layer {
+    fn add_assign(&mut self, rhs: Layer) {
+        self.weights += rhs.weights;
+        self.biases  += rhs.biases;
+    }
+}
+
 pub struct TrainingParameters {
     pub epochs: usize,
     pub learning_rate: f32
@@ -86,14 +93,14 @@ impl Net {
                     .map(|dp| self.backprop(dp))
                     .fold(self.zero_changes(), |mut acc, item| {
                         for (a, i) in acc.iter_mut().zip(item) {
-                            a.weights += i.weights;
-                            a.biases  += i.biases;
+                            *a += i;
                         }
                         acc
                     });
-            for (l, x) in self.layers.iter_mut().zip(changes) {
-                l.weights += x.weights.apply_into(|x| x * parameters.learning_rate / data.len() as f32);
-                l.biases  += x.biases .apply_into(|x| x * parameters.learning_rate / data.len() as f32);
+            for (l, mut x) in self.layers.iter_mut().zip(changes) {
+                x.weights.apply(|x| x * parameters.learning_rate / data.len() as f32);
+                x.biases .apply(|x| x * parameters.learning_rate / data.len() as f32);
+                *l += x;
             }
         }
     }
