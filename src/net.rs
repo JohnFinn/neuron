@@ -4,6 +4,7 @@ extern crate rand;
 use nalgebra::*;
 use rand::*;
 
+#[derive(Clone)]
 pub struct DataPoint {
     pub input:  Vec<f32>,
     pub output: Vec<f32>,
@@ -86,10 +87,27 @@ impl Net {
     }
 
     fn _train(&mut self, data: Vec<_DataPoint>) {
-        let changes = self.backprop(&data[2]);
-        for x in changes.iter() {
-            print!("{0}", x);
+        for i in 0..10000 {
+            let mut changes =
+                data.iter()
+                    .map(|dp| self.backprop(dp))
+                    .fold(self.zero_changes(), |mut acc, item| {
+                        for (a, i) in acc.iter_mut().zip(item) {
+                            *a += i;
+                        }
+                        acc
+                    });
+            for (l, x) in self.layers.iter_mut().zip(changes) {
+                *l += x.apply_into(|x| x * 0.01 / data.len() as f32);
+            }
         }
+    }
+
+    fn zero_changes(&self) -> VecDeque<Layer> {
+        self.layers.iter()
+            .map(Matrix::shape)
+            .map(|(r, c)|DMatrix::zeros(r, c))
+            .collect()
     }
 
     fn activations(&self, input: &DVector<f32>) -> Vec<CalculatedLayer> {
@@ -113,6 +131,7 @@ impl Net {
         // and not forget to count activation function impact
         let mut desired_change_before_activation =
             (&dp.output - &last_activations.activated)
+                .apply_into(|x|x*2.0)
             .component_mul(
                 &last_activations.not_activated.clone().apply_into(sigmoid_derivative)
             );
