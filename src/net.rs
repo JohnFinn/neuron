@@ -125,6 +125,7 @@ impl Net {
 
     pub fn backprop(&self, dp: &_DataPoint) -> VecDeque<Layer> {
         let mut activations = self.activations(&dp.input);
+        activations.insert(0, CalculatedLayer{activated: dp.input.clone(), not_activated:dvec![]});
         let mut result = VecDeque::with_capacity(self.layers.len());
         let last_activations = activations.last().unwrap();
         // we need to change weights proportionally
@@ -139,7 +140,6 @@ impl Net {
             &desired_change_before_activation
             * &activations.from_end(1).activated.transpose();
         result.push_front(weights_change);
-        activations.insert(0, CalculatedLayer{activated: dp.input.clone(), not_activated:dvec![]});
         for index in (0..self.layers.len()-1).rev() {
             desired_change_before_activation =
                 (&self.layers[index+1].transpose() * &desired_change_before_activation)
