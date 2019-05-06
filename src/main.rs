@@ -11,7 +11,7 @@ fn target(x: f32) -> f32 {
 }
 
 fn main() {
-    let mut a = net![2, 4, 5, 3, 2];
+    let mut a = net![2, 3, 2];
     println!("~~~~~~~~~~~~~ network ~~~~~~~~~~~~~~~~~~ {0} =================================", a);
     let train_data = vec![
         DataPoint::new(vec![0.0, 0.0], vec![0.0, 1.0]),
@@ -21,14 +21,14 @@ fn main() {
     ];
     println!("untrained");
     for x in &train_data {
-        let res = a.predict(x.output.clone());
-        println!("expected: {0:?} got {1:?}", x.input, res);
+        let res = a.predict(x.input.clone());
+        println!("expected: {0:?} got {1:?}", x.output, res);
     }
     a.train(train_data.clone());
     println!("trained");
     for x in &train_data {
-        let res = a.predict(x.output.clone());
-        println!("expected: {0:?} got {1:?}", x.input, res);
+        let res = a.predict(x.input.clone());
+        println!("expected: {0:?} got {1:?}", x.output, res);
     }
     let res = a.predict(vec![1.0, 0.0]);
     println!("~~~~~~~~~~~~~ network ~~~~~~~~~~~~~~~~~~ {0} =================================", a);
