@@ -79,7 +79,7 @@ impl Net {
         Net {layers}
     }
 
-    pub fn train(&mut self, data: Vec<DataPoint>, parameters: TrainingParameters) {
+    pub fn train(&mut self, data: &Vec<DataPoint>, parameters: TrainingParameters) {
         for i in 0..parameters.epochs {
             let mut changes =
                 data.iter()

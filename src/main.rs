@@ -24,7 +24,7 @@ fn main() {
         let res = a.predict(x.input.clone());
         println!("expected: {0} got {1}", x.output, res);
     }
-    a.train(train_data.clone(), TrainingParameters {epochs: 10000, learning_rate: 1.0});
+    a.train(&train_data, TrainingParameters {epochs: 10000, learning_rate: 1.0});
     println!("trained");
     for x in &train_data {
         let res = a.predict(x.input.clone());
