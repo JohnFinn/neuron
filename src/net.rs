@@ -6,27 +6,13 @@ use rand::*;
 
 #[derive(Clone)]
 pub struct DataPoint {
-    pub input:  Vec<f32>,
-    pub output: Vec<f32>,
-}
-
-struct _DataPoint {
-    input:  DVector<f32>,
-    output: DVector<f32>,
-}
-
-impl From<DataPoint> for _DataPoint {
-    fn from(dp: DataPoint) -> Self {
-        _DataPoint {
-            input: DVector::from_vec(dp.input),
-            output: DVector::from_vec(dp.output)
-        }
-    }
+    pub input:  DVector<f32>,
+    pub output: DVector<f32>,
 }
 
 impl DataPoint {
-    pub fn new(input: Vec<f32>, output: Vec<f32>) -> DataPoint {
-        DataPoint{input, output}
+    pub fn new(input: DVector<f32>, output: DVector<f32>) -> DataPoint {
+        DataPoint {input, output}
     }
 }
 
@@ -88,11 +74,7 @@ impl Net {
         Net {layers}
     }
 
-    pub fn train<T: IntoIterator<Item=DataPoint>>(&mut self, data: T) {
-        self._train(data.into_iter().map(|x|x.into()).collect());
-    }
-
-    fn _train(&mut self, data: Vec<_DataPoint>) {
+    pub fn train(&mut self, data: Vec<DataPoint>) {
         for i in 0..100000 {
             let mut changes =
                 data.iter()
@@ -134,7 +116,7 @@ impl Net {
         result
     }
 
-    pub fn backprop(&self, dp: &_DataPoint) -> VecDeque<Layer> {
+    pub fn backprop(&self, dp: &DataPoint) -> VecDeque<Layer> {
         let mut activations = self.activations(&dp.input);
         activations.insert(0, CalculatedLayer{activated: dp.input.clone(), not_activated:dvec![]});
         let mut result = VecDeque::with_capacity(self.layers.len());
@@ -170,14 +152,7 @@ impl Net {
         result
     }
 
-    pub fn predict(&self, input: Vec<f32>) -> Vec<f32> {
-        self._predict(DVector::from_vec(input))
-            .iter()
-            .map(|&x|x)
-            .collect()
-    }
-
-    fn _predict(&self, mut input: DVector<f32>) -> DVector<f32> {
+    pub fn predict(&self, mut input: DVector<f32>) -> DVector<f32> {
         for x in &self.layers {
             input = &x.weights * input + &x.biases;
             input.apply(sigmoid);
@@ -185,12 +160,12 @@ impl Net {
         input
     }
 
-    fn all_cost(&self, data: Vec<_DataPoint>) -> f32 {
+    fn all_cost(&self, data: Vec<DataPoint>) -> f32 {
         data.into_iter().map(|dp| self.cost(&dp)).sum()
     }
 
-    fn cost(&self, dp: &_DataPoint) -> f32 {
-        let mut a = self._predict(dp.input.clone()) - &dp.output;
+    fn cost(&self, dp: &DataPoint) -> f32 {
+        let mut a = self.predict(dp.input.clone()) - &dp.output;
         a.iter().map(|x|x*x).sum()
     }
 }
