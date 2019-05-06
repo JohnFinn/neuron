@@ -26,6 +26,11 @@ struct Layer {
     biases:  DVector<f32>
 }
 
+pub struct TrainingParameters {
+    pub epochs: usize,
+    pub learning_rate: f32
+}
+
 pub struct Net {
     layers: Vec<Layer>
 }
@@ -74,8 +79,8 @@ impl Net {
         Net {layers}
     }
 
-    pub fn train(&mut self, data: Vec<DataPoint>) {
-        for i in 0..100000 {
+    pub fn train(&mut self, data: Vec<DataPoint>, parameters: TrainingParameters) {
+        for i in 0..parameters.epochs {
             let mut changes =
                 data.iter()
                     .map(|dp| self.backprop(dp))
@@ -87,8 +92,8 @@ impl Net {
                         acc
                     });
             for (l, x) in self.layers.iter_mut().zip(changes) {
-                l.weights += x.weights.apply_into(|x| x * 0.1 / data.len() as f32);
-                l.biases  += x.biases .apply_into(|x| x * 0.1 / data.len() as f32);
+                l.weights += x.weights.apply_into(|x| x * parameters.learning_rate / data.len() as f32);
+                l.biases  += x.biases .apply_into(|x| x * parameters.learning_rate / data.len() as f32);
             }
         }
     }
