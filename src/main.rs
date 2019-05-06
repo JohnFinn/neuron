@@ -11,13 +11,13 @@ fn target(x: f32) -> f32 {
 }
 
 fn main() {
-    let mut a = net![2, 3, 2];
+    let mut a = net![2, 3, 1];
     println!("~~~~~~~~~~~~~ network ~~~~~~~~~~~~~~~~~~ {0} =================================", a);
     let train_data = vec![
-        DataPoint::new(vec![0.0, 0.0], vec![0.0, 1.0]),
-        DataPoint::new(vec![0.0, 1.0], vec![1.0, 0.0]),
-        DataPoint::new(vec![1.0, 0.0], vec![1.0, 0.0]),
-        DataPoint::new(vec![1.0, 1.0], vec![0.0, 1.0]),
+        DataPoint::new(vec![0.0, 0.0], vec![0.0]),
+        DataPoint::new(vec![0.0, 1.0], vec![1.0]),
+        DataPoint::new(vec![1.0, 0.0], vec![1.0]),
+        DataPoint::new(vec![1.0, 1.0], vec![0.0]),
     ];
     println!("untrained");
     for x in &train_data {
