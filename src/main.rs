@@ -23,7 +23,7 @@ fn target2(x: f32) -> f32 {
 }
 
 fn target(x: f32) -> f32 {
-    (1.0 + x.sin()).ln() + 18.0
+    (1.0 + x.sin()).ln()
 }
 
 fn sigmoid_reversed(x: f32) -> f32 {
@@ -66,13 +66,13 @@ fn main() {
     let mut net2 = net![1, 16, 1];
     for i in 1..3000 {
         net2.train(
-            &a.clone().map(|x|DataPoint{input: dvec![x], output: dvec![target(x)/20.0]}).collect(),
-            TrainingParameters{epochs: 30, learning_rate: 10.0}
+            &a.clone().map(|x|DataPoint{input: dvec![x], output: dvec![sigmoid(target(x))]}).collect(),
+            TrainingParameters{epochs: 30, learning_rate: 5.0}
         );
         figure.clear_axes();
         figure.axes2d()
             .lines(a.clone(), a.clone().map(target), &[])
-            .lines(a.clone(), a.clone().map(|x| net2.predict(dvec![x])[0]*20.0), &[])
+            .lines(a.clone(), a.clone().map(|x| sigmoid_reversed(net2.predict(dvec![x])[0])), &[])
         ;
         figure.show();
     }
