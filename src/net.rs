@@ -26,6 +26,15 @@ struct Layer {
     biases:  DVector<f32>
 }
 
+impl Layer {
+    fn new_random(inputs: usize, outputs: usize) -> Layer {
+        Layer{
+            weights: DMatrix::new_random(outputs, inputs),
+            biases:  DVector::new_random(outputs)
+        }
+    }
+}
+
 impl std::ops::AddAssign<Layer> for Layer {
     fn add_assign(&mut self, rhs: Layer) {
         self.weights += rhs.weights;
@@ -78,10 +87,7 @@ impl Net {
         assert!(sizes.len() >= 2);
         let mut layers = vec![];
         for i in 0..sizes.len()-1 {
-            layers.push(Layer{
-                weights: DMatrix::new_random(sizes[i + 1], sizes[i]),
-                biases:  DVector::new_random(sizes[i + 1])
-            });
+            layers.push(Layer::new_random(sizes[i], sizes[i+1]));
         }
         Net {layers}
     }
