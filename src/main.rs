@@ -7,9 +7,12 @@ use gnuplot::*;
 use nalgebra::*;
 use rand::*;
 use itertools_num::*;
+use std::thread;
+use std::sync::mpsc;
 
 mod net;
 use net::*;
+use std::time::Duration;
 
 fn target1(x: bool, y: bool, z: bool) -> bool {
     (x == y) || (!x && z)
@@ -20,7 +23,7 @@ fn target2(x: f32) -> f32 {
 }
 
 fn target(x: f32) -> f32 {
-    (1.0 + x.sin()).ln()
+    (1.0 + x.sin()).ln() + 18.0
 }
 
 fn sigmoid_reversed(x: f32) -> f32 {
@@ -36,7 +39,7 @@ macro_rules! to_dvec {
 }
 
 fn main() {
-    let mut a = net![3, 1];
+    let mut a = net![3, 6, 1];
     let train_data: Vec<_> = (0..8)
         .map(|a| ((a & 4) != 0, (a & 2) != 0, (a & 1) != 0))
         .map(|(x, y, z)| DataPoint {
@@ -59,16 +62,18 @@ fn main() {
 
     let mut figure = Figure::new();
 
-    let a = linspace::<f32>(-10., 10., 100);
-    let mut net2 = net![1, 5, 5, 5, 1];
-    net2.train(
-        &a.clone().map(|x|DataPoint{input: dvec![x], output: dvec![target2(x)/10.0]}).collect(),
-        TrainingParameters{epochs: 10000, learning_rate: 1.0}
-    );
-
-    figure.axes2d()
-        .lines(a.clone(), a.clone().map(target2), &[])
-        .lines(a.clone(), a.clone().map(|x| net2.predict(dvec![x])[0]*10.0), &[])
-    ;
-    figure.show();
+    let a = linspace::<f32>(-10., 10., 1000);
+    let mut net2 = net![1, 16, 1];
+    for i in 1..3000 {
+        net2.train(
+            &a.clone().map(|x|DataPoint{input: dvec![x], output: dvec![target(x)/20.0]}).collect(),
+            TrainingParameters{epochs: 30, learning_rate: 10.0}
+        );
+        figure.clear_axes();
+        figure.axes2d()
+            .lines(a.clone(), a.clone().map(target), &[])
+            .lines(a.clone(), a.clone().map(|x| net2.predict(dvec![x])[0]*20.0), &[])
+        ;
+        figure.show();
+    }
 }
