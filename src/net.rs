@@ -33,6 +33,13 @@ impl Layer {
             biases:  DVector::new_random(outputs)
         }
     }
+
+    fn zeros(inputs: usize, outputs: usize) -> Layer {
+        Layer {
+            weights: DMatrix::zeros(outputs, inputs),
+            biases:  DVector::zeros(outputs)
+        }
+    }
 }
 
 impl std::ops::AddAssign<Layer> for Layer {
@@ -114,10 +121,7 @@ impl Net {
     fn zero_changes(&self) -> VecDeque<Layer> {
         self.layers.iter()
             .map(|l| l.weights.shape())
-            .map(|(r, c)| Layer {
-                weights: DMatrix::zeros(r, c),
-                biases:  DVector::zeros(r)
-            })
+            .map(|(r, c)| Layer::zeros(c, r))
             .collect()
     }
 
