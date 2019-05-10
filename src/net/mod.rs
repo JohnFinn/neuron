@@ -102,11 +102,11 @@ impl Net {
 
     fn activations(&self, input: &DVector<f32>) -> Vec<CalculatedLayer> {
         let mut result = Vec::with_capacity(self.layers.len());
-        let not_activated = &self.layers[0].weights * input + &self.layers[0].biases;
+        let not_activated = self.layers[0].calculate(input);
         let mut activated = not_activated.clone().apply_into(sigmoid);
         result.push(CalculatedLayer{not_activated, activated});
         for i in 1..self.layers.len() {
-            let not_activated = &self.layers[i].weights * &result[i-1].activated + &self.layers[i].biases;
+            let not_activated = self.layers[i].calculate(&result[i-1].activated);
             let mut activated = not_activated.clone().apply_into(sigmoid);
             result.push(CalculatedLayer{not_activated, activated});
         }
@@ -151,7 +151,7 @@ impl Net {
 
     pub fn predict(&self, mut input: DVector<f32>) -> DVector<f32> {
         for x in &self.layers {
-            input = &x.weights * input + &x.biases;
+            input = x.calculate(&input);
             input.apply(sigmoid);
         }
         input

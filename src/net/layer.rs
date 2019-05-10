@@ -25,6 +25,10 @@ impl Layer {
     pub fn shape(&self) -> (usize, usize) {
         (self.weights.ncols(), self.weights.nrows())
     }
+
+    pub fn calculate(&self, input: &DVector<f32>) -> DVector<f32> {
+        &self.weights * input + &self.biases
+    }
 }
 
 impl std::ops::AddAssign<Layer> for Layer {
