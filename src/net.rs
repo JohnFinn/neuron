@@ -40,6 +40,10 @@ impl Layer {
             biases:  DVector::zeros(outputs)
         }
     }
+
+    fn shape(&self) -> (usize, usize) {
+        (self.weights.ncols(), self.weights.nrows())
+    }
 }
 
 impl std::ops::AddAssign<Layer> for Layer {
@@ -120,8 +124,8 @@ impl Net {
 
     fn zero_changes(&self) -> VecDeque<Layer> {
         self.layers.iter()
-            .map(|l| l.weights.shape())
-            .map(|(r, c)| Layer::zeros(c, r))
+            .map(|l| l.shape())
+            .map(|(inputs, outputs)| Layer::zeros(inputs, outputs))
             .collect()
     }
 
