@@ -1,5 +1,6 @@
 extern crate nalgebra;
 
+use std::ops::{AddAssign, MulAssign};
 use nalgebra::{DMatrix, DVector};
 
 pub struct Layer {
@@ -31,9 +32,16 @@ impl Layer {
     }
 }
 
-impl std::ops::AddAssign<Layer> for Layer {
+impl AddAssign<Layer> for Layer {
     fn add_assign(&mut self, rhs: Layer) {
         self.weights += rhs.weights;
         self.biases  += rhs.biases;
+    }
+}
+
+impl MulAssign<f32> for Layer {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.weights *= rhs;
+        self.biases  *= rhs
     }
 }

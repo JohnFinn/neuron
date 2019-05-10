@@ -86,8 +86,7 @@ impl Net {
                         acc
                     });
             for (l, mut x) in self.layers.iter_mut().zip(changes) {
-                x.weights.apply(|x| x * parameters.learning_rate / data.len() as f32);
-                x.biases .apply(|x| x * parameters.learning_rate / data.len() as f32);
+                x *= parameters.learning_rate / data.len() as f32;
                 *l += x;
             }
         }
