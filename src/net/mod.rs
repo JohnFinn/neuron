@@ -101,12 +101,10 @@ impl Net {
     }
 
     fn activations(&self, input: &DVector<f32>) -> Vec<CalculatedLayer> {
-        let mut result = Vec::with_capacity(self.layers.len());
-        let not_activated = self.layers[0].calculate(input);
-        let mut activated = not_activated.clone().apply_into(sigmoid);
-        result.push(CalculatedLayer{not_activated, activated});
-        for i in 1..self.layers.len() {
-            let not_activated = self.layers[i].calculate(&result[i-1].activated);
+        let mut result = Vec::with_capacity(self.layers.len() + 1);
+        result.push(CalculatedLayer{activated: input.clone(), not_activated:dvec![]});
+        for i in 0..self.layers.len() {
+            let not_activated = self.layers[i].calculate(&result[i].activated);
             let mut activated = not_activated.clone().apply_into(sigmoid);
             result.push(CalculatedLayer{not_activated, activated});
         }
@@ -115,7 +113,6 @@ impl Net {
 
     pub fn backprop(&self, dp: &DataPoint) -> VecDeque<Layer> {
         let mut activations = self.activations(&dp.input);
-        activations.insert(0, CalculatedLayer{activated: dp.input.clone(), not_activated:dvec![]});
         let mut result = VecDeque::with_capacity(self.layers.len());
         let last_activations = activations.last().unwrap();
         // we need to change weights proportionally
