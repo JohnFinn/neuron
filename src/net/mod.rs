@@ -4,6 +4,9 @@ extern crate rand;
 use nalgebra::*;
 use rand::*;
 
+mod layer;
+use layer::*;
+
 #[derive(Clone)]
 pub struct DataPoint {
     pub input:  DVector<f32>,
@@ -19,38 +22,6 @@ impl DataPoint {
 struct CalculatedLayer {
     not_activated: DVector<f32>,
     activated: DVector<f32>,
-}
-
-struct Layer {
-    weights: DMatrix<f32>,
-    biases:  DVector<f32>
-}
-
-impl Layer {
-    fn new_random(inputs: usize, outputs: usize) -> Layer {
-        Layer{
-            weights: DMatrix::new_random(outputs, inputs),
-            biases:  DVector::new_random(outputs)
-        }
-    }
-
-    fn zeros(inputs: usize, outputs: usize) -> Layer {
-        Layer {
-            weights: DMatrix::zeros(outputs, inputs),
-            biases:  DVector::zeros(outputs)
-        }
-    }
-
-    fn shape(&self) -> (usize, usize) {
-        (self.weights.ncols(), self.weights.nrows())
-    }
-}
-
-impl std::ops::AddAssign<Layer> for Layer {
-    fn add_assign(&mut self, rhs: Layer) {
-        self.weights += rhs.weights;
-        self.biases  += rhs.biases;
-    }
 }
 
 pub struct TrainingParameters {
