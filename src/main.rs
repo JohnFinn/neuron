@@ -27,28 +27,34 @@ fn sigmoid_reversed(x: f32) -> f32 {
     (x/(1.-x)).ln()
 }
 
+macro_rules! to_dvec {
+    ( $( $x:expr ),* ) => {
+        {
+            dvec!($($x as i32 as f32),*)
+        }
+    };
+}
+
 fn main() {
     let mut a = net![3, 1];
     let train_data: Vec<_> = (0..8)
         .map(|a| ((a & 4) != 0, (a & 2) != 0, (a & 1) != 0))
-        .map(|(x, y, z)|((x, y, z), target1(x, y, z)))
-        .map(|((x, y, z), r)| ((x as i8 as f32, y as i8 as f32, z as i8 as f32), r as i8 as f32))
-        .map(|((x, y, z), r)| DataPoint {
-            input:  dvec![x, y, z],
-            output: dvec![r],
+        .map(|(x, y, z)| DataPoint {
+            input:  to_dvec![x, y, z],
+            output: to_dvec![target1(x, y, z)],
         })
         .collect();
 
     println!("untrained");
     for x in &train_data {
         let res = a.predict(x.input.clone());
-        println!("expected: {0} got {1}", x.output, res);
+        println!("expected: {0} got {1}", x.output[0], res[0]);
     }
     a.train(&train_data, TrainingParameters {epochs: 10000, learning_rate: 1.0});
     println!("trained");
     for x in &train_data {
         let res = a.predict(x.input.clone());
-        println!("expected: {0} got {1}", x.output, res);
+        println!("expected: {0} got {1}", x.output[0], res[0]);
     }
 
     let mut figure = Figure::new();
