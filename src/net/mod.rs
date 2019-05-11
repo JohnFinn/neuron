@@ -94,7 +94,7 @@ impl Net {
 
     fn zero_changes(&self) -> VecDeque<Layer> {
         self.layers.iter()
-            .map(|l| l.shape())
+            .map(Layer::shape)
             .map(|(inputs, outputs)| Layer::zeros(inputs, outputs))
             .collect()
     }
