@@ -39,6 +39,10 @@ macro_rules! to_dvec {
 }
 
 fn main() {
+    train_float_function();
+}
+
+fn train_bool_function() {
     let mut a = net![3, 6, 1];
     let train_data: Vec<_> = (0..8)
         .map(|a| ((a & 4) != 0, (a & 2) != 0, (a & 1) != 0))
@@ -59,9 +63,10 @@ fn main() {
         let res = a.predict(x.input.clone());
         println!("expected: {0} got {1}", x.output[0], res[0]);
     }
+}
 
+fn train_float_function() {
     let mut figure = Figure::new();
-
     let a = linspace::<f32>(-10., 10., 1000);
     let mut net2 = net![1, 16, 1];
     for i in 1..3000 {
