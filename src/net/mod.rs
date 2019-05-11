@@ -1,8 +1,10 @@
 extern crate nalgebra;
 extern crate rand;
+extern crate rayon;
 
 use nalgebra::*;
 use rand::*;
+use rayon::prelude::*;
 
 mod layer;
 use layer::*;
@@ -77,9 +79,9 @@ impl Net {
     pub fn train(&mut self, data: &Vec<DataPoint>, parameters: TrainingParameters) {
         for i in 0..parameters.epochs {
             let mut changes =
-                data.iter()
+                data.par_iter()
                     .map(|dp| self.backprop(dp))
-                    .fold(self.zero_changes(), |mut acc, item| {
+                    .reduce(||self.zero_changes(), |mut acc, item| {
                         for (a, i) in acc.iter_mut().zip(item) {
                             *a += i;
                         }

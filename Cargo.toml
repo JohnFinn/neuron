@@ -7,5 +7,6 @@ edition = "2018"
 [dependencies]
 nalgebra = "*"
 rand     = "*"
+rayon    = "*"
 gnuplot  = "*"
 itertools-num = "*"
