@@ -7,6 +7,7 @@ use gnuplot::*;
 use itertools_num::*;
 
 use net::*;
+use nalgebra::DVector;
 
 mod net;
 
@@ -58,10 +59,10 @@ fn train_bool_function() {
     }
 }
 
-fn get_points<F: Fn(f32) -> f32>(a: f32, b: f32, n: usize, func: F) -> (Vec<f32>, Vec<f32>) {
+fn get_points<F: Fn(f32) -> f32>(a: f32, b: f32, n: usize, func: F) -> (DVector<f32>, DVector<f32>) {
     let ls = linspace::<f32>(a, b, n);
-    let x = ls.clone().collect::<Vec<_>>();
-    let y = ls.clone().map(func).collect::<Vec<_>>();
+    let x = DVector::from_iterator(n, ls.clone());
+    let y = DVector::from_iterator(n, ls.clone().map(func));
     (x, y)
 }
 
@@ -70,14 +71,14 @@ fn train_float_function() {
     let (draw_x, draw_y) = get_points(-10., 10., 1000, target);
     let train_data = linspace::<f32>(-10., 10., 100)
         .map(|x| DataPoint {
-            input: dvec![x],
+            input:  dvec![x],
             output: dvec![sigmoid(target(x))],
         })
         .collect();
-    let mut net2 = net![1, 16, 1];
+    let mut net = net![1, 16, 1];
     for _ in 1..3000 {
-        net2.train(&train_data, TrainingParameters { epochs: 30, learning_rate: 5.0 });
-        let predicted = draw_x.iter().map(|&x| sigmoid_reversed(net2.predict(dvec![x])[0]));
+        net.train(&train_data, TrainingParameters { epochs: 300, learning_rate: 5.0 });
+        let predicted = draw_x.iter().map(|&x| sigmoid_reversed(net.predict(dvec![x])[0]));
         figure.clear_axes();
         figure.axes2d()
             .lines(&draw_x, &draw_y, &[])
