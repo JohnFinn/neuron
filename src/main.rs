@@ -5,9 +5,9 @@ use std::thread;
 
 use gnuplot::*;
 use itertools_num::*;
+use nalgebra::DVector;
 
 use net::*;
-use nalgebra::DVector;
 
 mod net;
 
@@ -66,6 +66,10 @@ fn get_points<F: Fn(f32) -> f32>(a: f32, b: f32, n: usize, func: F) -> (DVector<
     (x, y)
 }
 
+fn error(a: &DVector<f32>, b: &DVector<f32>) -> f32 {
+    (b - a).apply_into(f32::abs).sum() / a.len() as f32
+}
+
 fn train_float_function() {
     let mut figure = Figure::new();
     let mut error_figure = Figure::new();
@@ -78,22 +82,22 @@ fn train_float_function() {
         .collect();
     let mut net = net![1, 16, 1];
     let mut errors = Vec::new();
-    for i in 1..3000 {
+    for i in 0..3000 {
         net.train(&train_data, TrainingParameters { epochs: 300, learning_rate: 5.0 });
         let predicted = DVector::from_iterator(
             draw_x.len(),
             draw_x.iter().map(|&x| sigmoid_reversed(net.predict(dvec![x])[0]))
         );
-        let error = (&predicted - &draw_x).apply_into(|x| x*x).sum() / draw_x.len() as f32;
-        errors.push(error);
+        let err = error(&predicted, &draw_y);
+        errors.push(err);
         error_figure.clear_axes()
             .axes2d()
-            .lines(1..=i, &errors, &[]);
+            .lines(0..=i, &errors, &[]);
         error_figure.show();
         figure.clear_axes()
             .axes2d()
             .lines(&draw_x, &draw_y, &[])
-            .lines(&draw_x, &predicted, &[gnuplot::Caption(&format!("{0:.5}", error))])
+            .lines(&draw_x, &predicted, &[gnuplot::Caption(&format!("{0:.5}", err))])
         ;
         figure.show();
     }
