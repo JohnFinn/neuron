@@ -66,11 +66,9 @@ fn train_float_function() {
     let mut figure = Figure::new();
     let a = linspace::<f32>(-10., 10., 1000);
     let mut net2 = net![1, 16, 1];
+    let train_data = &a.clone().map(|x|DataPoint{input: dvec![x], output: dvec![sigmoid(target(x))]}).collect();
     for i in 1..3000 {
-        net2.train(
-            &a.clone().map(|x|DataPoint{input: dvec![x], output: dvec![sigmoid(target(x))]}).collect(),
-            TrainingParameters{epochs: 30, learning_rate: 5.0}
-        );
+        net2.train(train_data, TrainingParameters{epochs: 30, learning_rate: 5.0});
         figure.clear_axes();
         figure.axes2d()
             .lines(a.clone(), a.clone().map(target), &[])
