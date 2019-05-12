@@ -82,17 +82,30 @@ fn train_float_function() {
         .collect();
     let mut net = net![1, 16, 1];
     let mut errors = Vec::new();
+    let mut train_errors = Vec::new();
     for i in 0..3000 {
         net.train(&train_data, TrainingParameters { epochs: 300, learning_rate: 5.0 });
         let predicted = DVector::from_iterator(
             draw_x.len(),
             draw_x.iter().map(|&x| sigmoid_reversed(net.predict(dvec![x])[0]))
         );
+        let train_predicted = DVector::from_iterator(
+            train_data.len(),
+            train_data.iter().map(|x| sigmoid_reversed(net.predict(x.input.clone())[0]))
+        );
+        let train_expected = DVector::from_iterator(
+            train_data.len(),
+            train_data.iter().map(|x| sigmoid_reversed(x.output[0]))
+        );
         let err = error(&predicted, &draw_y);
+        let train_err = error(&train_predicted, &train_expected);
         errors.push(err);
+        train_errors.push(train_err);
         error_figure.clear_axes()
             .axes2d()
-            .lines(0..=i, &errors, &[]);
+            .lines(0..=i, &errors, &[])
+            .lines(0..=i, &train_errors, &[])
+        ;
         error_figure.show();
         figure.clear_axes()
             .axes2d()
