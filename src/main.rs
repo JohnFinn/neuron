@@ -68,6 +68,7 @@ fn get_points<F: Fn(f32) -> f32>(a: f32, b: f32, n: usize, func: F) -> (DVector<
 
 fn train_float_function() {
     let mut figure = Figure::new();
+    let mut error_figure = Figure::new();
     let (draw_x, draw_y) = get_points(-10., 10., 1000, target);
     let train_data = linspace::<f32>(-10., 10., 100)
         .map(|x| DataPoint {
@@ -76,13 +77,23 @@ fn train_float_function() {
         })
         .collect();
     let mut net = net![1, 16, 1];
-    for _ in 1..3000 {
+    let mut errors = Vec::new();
+    for i in 1..3000 {
         net.train(&train_data, TrainingParameters { epochs: 300, learning_rate: 5.0 });
-        let predicted = draw_x.iter().map(|&x| sigmoid_reversed(net.predict(dvec![x])[0]));
-        figure.clear_axes();
-        figure.axes2d()
+        let predicted = DVector::from_iterator(
+            draw_x.len(),
+            draw_x.iter().map(|&x| sigmoid_reversed(net.predict(dvec![x])[0]))
+        );
+        let error = (&predicted - &draw_x).apply_into(|x| x*x).sum() / draw_x.len() as f32;
+        errors.push(error);
+        error_figure.clear_axes()
+            .axes2d()
+            .lines(1..=i, &errors, &[]);
+        error_figure.show();
+        figure.clear_axes()
+            .axes2d()
             .lines(&draw_x, &draw_y, &[])
-            .lines(&draw_x, predicted, &[])
+            .lines(&draw_x, &predicted, &[gnuplot::Caption(&format!("{0:.5}", error))])
         ;
         figure.show();
     }
