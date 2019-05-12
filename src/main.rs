@@ -15,11 +15,7 @@ use net::*;
 use std::time::Duration;
 
 fn target1(x: bool, y: bool, z: bool) -> bool {
-    (x == y) || (!x && z)
-}
-
-fn target2(x: f32) -> f32 {
-    (1.0 + x.exp()).ln()
+    (!x || !y) && (!x || z)
 }
 
 fn target(x: f32) -> f32 {
@@ -39,6 +35,7 @@ macro_rules! to_dvec {
 }
 
 fn main() {
+    thread::spawn(train_bool_function);
     train_float_function();
 }
 
