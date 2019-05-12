@@ -1,9 +1,7 @@
 extern crate nalgebra;
-extern crate rand;
 extern crate rayon;
 
 use nalgebra::*;
-use rand::*;
 use rayon::prelude::*;
 
 mod layer;
@@ -13,12 +11,6 @@ use layer::*;
 pub struct DataPoint {
     pub input:  DVector<f32>,
     pub output: DVector<f32>,
-}
-
-impl DataPoint {
-    pub fn new(input: DVector<f32>, output: DVector<f32>) -> DataPoint {
-        DataPoint {input, output}
-    }
 }
 
 struct CalculatedLayer {
@@ -77,8 +69,8 @@ impl Net {
     }
 
     pub fn train(&mut self, data: &Vec<DataPoint>, parameters: TrainingParameters) {
-        for i in 0..parameters.epochs {
-            let mut changes =
+        for _ in 0..parameters.epochs {
+            let changes =
                 data.par_iter()
                     .map(|dp| self.backprop(dp))
                     .reduce(||self.zero_changes(), |mut acc, item| {
@@ -106,14 +98,14 @@ impl Net {
         result.push(CalculatedLayer{activated: input.clone(), not_activated:dvec![]});
         for i in 0..self.layers.len() {
             let not_activated = self.layers[i].calculate(&result[i].activated);
-            let mut activated = not_activated.clone().apply_into(sigmoid);
+            let activated = not_activated.clone().apply_into(sigmoid);
             result.push(CalculatedLayer{not_activated, activated});
         }
         result
     }
 
     pub fn backprop(&self, dp: &DataPoint) -> VecDeque<Layer> {
-        let mut activations = self.activations(&dp.input);
+        let activations = self.activations(&dp.input);
         let mut result = VecDeque::with_capacity(self.layers.len());
         let last_activations = activations.last().unwrap();
         // we need to change weights proportionally
@@ -154,15 +146,6 @@ impl Net {
         }
         input
     }
-
-    fn all_cost(&self, data: Vec<DataPoint>) -> f32 {
-        data.into_iter().map(|dp| self.cost(&dp)).sum()
-    }
-
-    fn cost(&self, dp: &DataPoint) -> f32 {
-        let mut a = self.predict(dp.input.clone()) - &dp.output;
-        a.iter().map(|x|x*x).sum()
-    }
 }
 
 #[macro_export]
@@ -172,10 +155,6 @@ macro_rules! net {
             Net::new(&[$($x),*])
         }
     };
-}
-
-fn cost(x: f32, y: f32) -> f32 {
-    (x-y)*(x-y)
 }
 
 pub fn sigmoid(x: f32) -> f32 {

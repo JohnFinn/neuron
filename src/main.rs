@@ -75,7 +75,7 @@ fn train_float_function() {
         })
         .collect();
     let mut net2 = net![1, 16, 1];
-    for i in 1..3000 {
+    for _ in 1..3000 {
         net2.train(&train_data, TrainingParameters { epochs: 30, learning_rate: 5.0 });
         let predicted = draw_x.iter().map(|&x| sigmoid_reversed(net2.predict(dvec![x])[0]));
         figure.clear_axes();
