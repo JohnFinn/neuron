@@ -74,7 +74,8 @@ fn train_float_function() {
     let mut figure = Figure::new();
     let mut error_figure = Figure::new();
     let (draw_x, draw_y) = get_points(-10., 10., 1000, target);
-    let train_data = linspace::<f32>(-10., 10., 100)
+    let train_x = linspace::<f32>(-10., 10., 100);
+    let train_data = train_x.clone()
         .map(|x| DataPoint {
             input:  dvec![x],
             output: dvec![sigmoid(target(x))],
@@ -83,8 +84,8 @@ fn train_float_function() {
     let mut net = net![1, 16, 1];
     let mut errors = Vec::new();
     let mut train_errors = Vec::new();
-    for i in 0..3000 {
-        net.train(&train_data, TrainingParameters { epochs: 300, learning_rate: 5.0 });
+    for i in 0..300000 {
+        net.train(&train_data, TrainingParameters { epochs: 1000, learning_rate: 5.0 });
         let predicted = DVector::from_iterator(
             draw_x.len(),
             draw_x.iter().map(|&x| sigmoid_reversed(net.predict(dvec![x])[0]))
@@ -109,7 +110,7 @@ fn train_float_function() {
         error_figure.show();
         figure.clear_axes()
             .axes2d()
-            .lines(&draw_x, &draw_y, &[])
+            .points(train_x.clone(), train_x.clone().map(target), &[PointSymbol('o')])
             .lines(&draw_x, &predicted, &[gnuplot::Caption(&format!("{0:.5}", err))])
         ;
         figure.show();
